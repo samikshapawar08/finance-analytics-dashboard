@@ -1,61 +1,74 @@
-from flask import Flask, render_template
+import streamlit as st
 import pandas as pd
 from sqlalchemy import create_engine
 
-app = Flask(__name__)
+# ---------------- CONFIG ----------------
+st.set_page_config(page_title="Finance Dashboard", layout="wide")
 
+# ---------------- DB CONNECTION ----------------
 engine = create_engine("postgresql://postgres:newpassword123@localhost:5432/finance_db")
 
-@app.route('/')
-def dashboard():
-    df = pd.read_sql("SELECT * FROM finance_data", engine)
+df = pd.read_sql("SELECT * FROM finance_data", engine)
 
-    # ---------------- BASIC KPIs ----------------
-    total_revenue = df['revenue'].sum()
-    total_profit = df['profit'].sum()
-    total_cost = df['cost'].sum()
-    profit_margin = (total_profit / total_revenue) * 100
+# ---------------- KPIs ----------------
+total_revenue = df['revenue'].sum()
+total_profit = df['profit'].sum()
+total_cost = df['cost'].sum()
+profit_margin = (total_profit / total_revenue) * 100
 
-    # ---------------- MONTHLY AGG ----------------
-    monthly = df.groupby('month').agg({
-        'revenue': 'sum',
-        'profit': 'sum',
-        'cost': 'sum'
-    }).sort_index()
+# ---------------- MONTHLY AGG ----------------
+monthly = df.groupby('month').agg({
+    'revenue': 'sum',
+    'profit': 'sum',
+    'cost': 'sum'
+}).sort_index()
 
-    # Margin per month
-    monthly['margin'] = (monthly['profit'] / monthly['revenue']) * 100
+monthly['margin'] = (monthly['profit'] / monthly['revenue']) * 100
+monthly['contribution'] = (monthly['revenue'] / total_revenue) * 100
 
-    # Contribution %
-    monthly['contribution'] = (monthly['revenue'] / total_revenue) * 100
+# ---------------- INSIGHTS ----------------
+best_month = monthly['revenue'].idxmax()
+best_margin_month = monthly['margin'].idxmax()
 
-    # ---------------- DICTS ----------------
-    revenue_data = monthly['revenue'].to_dict()
-    profit_data = monthly['profit'].to_dict()
-    cost_data = monthly['cost'].to_dict()
-    margin_data = monthly['margin'].to_dict()
-    contribution_data = monthly['contribution'].to_dict()
+# ---------------- UI ----------------
+st.title("📊 Finance Analytics Dashboard")
 
-    # ---------------- INSIGHTS ----------------
-    best_month = monthly['revenue'].idxmax()
-    best_margin_month = monthly['margin'].idxmax()
+# KPI ROW
+col1, col2, col3, col4 = st.columns(4)
 
-    return render_template(
-        "dashboard.html",
-        revenue=round(total_revenue,2),
-        profit=round(total_profit,2),
-        cost=round(total_cost,2),
-        margin=round(profit_margin,2),
+col1.metric("Revenue", f"₹{round(total_revenue,2)}")
+col2.metric("Profit", f"₹{round(total_profit,2)}")
+col3.metric("Cost", f"₹{round(total_cost,2)}")
+col4.metric("Margin", f"{round(profit_margin,2)}%")
 
-        best_month=best_month,
-        best_margin_month=best_margin_month,
+st.markdown("---")
 
-        revenue_data=revenue_data,
-        profit_data=profit_data,
-        cost_data=cost_data,
-        margin_data=margin_data,
-        contribution_data=contribution_data
-    )
+# CHARTS ROW 1
+col1, col2 = st.columns(2)
 
-if __name__ == "__main__":
-    app.run(debug=True)
+with col1:
+    st.subheader("📈 Revenue vs Profit vs Cost")
+    st.line_chart(monthly[['revenue','profit','cost']])
+
+with col2:
+    st.subheader("🥧 Revenue Contribution %")
+    st.bar_chart(monthly['contribution'])
+
+# CHARTS ROW 2
+col1, col2 = st.columns(2)
+
+with col1:
+    st.subheader("📊 Monthly Revenue")
+    st.bar_chart(monthly['revenue'])
+
+with col2:
+    st.subheader("📉 Profit Margin Trend")
+    st.line_chart(monthly['margin'])
+
+st.markdown("---")
+
+# INSIGHTS
+st.subheader("🔍 Key Insights")
+
+st.write(f"📈 Best Revenue Month: **{best_month}**")
+st.write(f"🔥 Best Margin Month: **{best_margin_month}**")
