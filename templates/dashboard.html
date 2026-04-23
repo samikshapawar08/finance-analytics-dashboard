@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Finance Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        body {
+            background: #0f172a;
+            color: white;
+            font-family: 'Segoe UI';
+            margin: 0;
+        }
+
+        .container {
+            padding: 20px 40px;
+        }
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+        }
+
+        .card {
+            background: #1e293b;
+            padding: 15px;
+            border-radius: 10px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .chart-box {
+            background: #1e293b;
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .small-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>📊 Finance Dashboard</h1>
+
+    <!-- KPI -->
+    <div class="cards">
+        <div class="card">Revenue: ₹{{ revenue }}</div>
+        <div class="card">Profit: ₹{{ profit }}</div>
+        <div class="card">Cost: ₹{{ cost }}</div>
+        <div class="card">Margin: {{ margin }}%</div>
+    </div>
+
+    <!-- MAIN -->
+    <div class="grid">
+
+        <div class="chart-box">
+            <h3>Revenue vs Profit vs Cost</h3>
+            <canvas id="mainChart"></canvas>
+        </div>
+
+        <div class="chart-box">
+            <h3>Revenue Contribution %</h3>
+            <canvas id="donutChart"></canvas>
+        </div>
+
+    </div>
+
+    <!-- SECOND -->
+    <div class="small-grid">
+
+        <div class="chart-box">
+            <h3>Monthly Revenue</h3>
+            <canvas id="barChart"></canvas>
+        </div>
+
+        <div class="chart-box">
+            <h3>Profit Margin Trend</h3>
+            <canvas id="marginChart"></canvas>
+        </div>
+
+    </div>
+
+    <!-- INSIGHTS -->
+    <div class="chart-box" style="margin-top:20px;">
+        <h3>Insights</h3>
+        <p>📈 Best Revenue Month: <b>{{ best_month }}</b></p>
+        <p>🔥 Best Margin Month: <b>{{ best_margin_month }}</b></p>
+    </div>
+
+</div>
+
+<script>
+let revenue = JSON.parse('{{ revenue_data | tojson | safe }}');
+let profit = JSON.parse('{{ profit_data | tojson | safe }}');
+let cost = JSON.parse('{{ cost_data | tojson | safe }}');
+let margin = JSON.parse('{{ margin_data | tojson | safe }}');
+let contribution = JSON.parse('{{ contribution_data | tojson | safe }}');
+
+// MAIN LINE
+new Chart(document.getElementById("mainChart"), {
+    type: 'line',
+    data: {
+        labels: Object.keys(revenue),
+        datasets: [
+            { label: "Revenue", data: Object.values(revenue), borderColor: "pink" },
+            { label: "Profit", data: Object.values(profit), borderColor: "green" },
+            { label: "Cost", data: Object.values(cost), borderColor: "red" }
+        ]
+    }
+});
+
+// BAR
+new Chart(document.getElementById("barChart"), {
+    type: 'bar',
+    data: {
+        labels: Object.keys(revenue),
+        datasets: [{
+            label: "Revenue",
+            data: Object.values(revenue)
+        }]
+    }
+});
+
+// DONUT
+new Chart(document.getElementById("donutChart"), {
+    type: 'doughnut',
+    data: {
+        labels: Object.keys(contribution),
+        datasets: [{
+            data: Object.values(contribution)
+        }]
+    }
+});
+
+// MARGIN LINE
+new Chart(document.getElementById("marginChart"), {
+    type: 'line',
+    data: {
+        labels: Object.keys(margin),
+        datasets: [{
+            label: "Margin %",
+            data: Object.values(margin),
+            borderColor: "orange"
+        }]
+    }
+});
+</script>
+
+</body>
+</html>
