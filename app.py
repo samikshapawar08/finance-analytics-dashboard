@@ -1,29 +1,15 @@
 import streamlit as st
 import pandas as pd
-import os
-from sqlalchemy import create_engine
 
 st.set_page_config(page_title="Finance Dashboard", layout="wide")
 
 
-db_url = os.environ.get("DATABASE_URL")
-
-if not db_url:
-    db_url = "postgresql://postgres:newpassword123@host:5432/finance_db"
-
-engine = create_engine(db_url)
-
-# THEN THIS
-df = pd.read_sql("SELECT * FROM finance_data", engine)
-
-df = pd.read_sql("SELECT * FROM finance_data", engine)
-
+df = pd.read_csv("cleaned_finance_data.csv")
 
 total_revenue = df['revenue'].sum()
 total_profit = df['profit'].sum()
 total_cost = df['cost'].sum()
 profit_margin = (total_profit / total_revenue) * 100
-
 
 monthly = df.groupby('month').agg({
     'revenue': 'sum',
