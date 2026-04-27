@@ -43,7 +43,7 @@ best_margin_month = monthly['margin'].idxmax()
 worst_month = monthly['revenue'].idxmin()
 
 # ---------------- UI ----------------
-st.title("📊 Finance Analytics Dashboard")
+st.title("📊Finance Analytics Dashboard")
 
 # KPI ROW
 col1, col2, col3, col4 = st.columns(4)
@@ -59,21 +59,21 @@ st.markdown("---")
 col1, col2 = st.columns(2)
 
 with col1:
-    st.subheader("📈 Revenue vs Profit vs Cost")
+    st.subheader("Revenue vs Profit vs Cost")
     st.line_chart(monthly[['revenue', 'profit', 'cost']])
 
 with col2:
-    st.subheader("🥧 Revenue Contribution %")
+    st.subheader("Revenue Contribution %")
     st.bar_chart(monthly[['contribution']])
 
 col1, col2 = st.columns(2)
 
 with col1:
-    st.subheader("📊 Monthly Revenue")
+    st.subheader("Monthly Revenue")
     st.bar_chart(monthly[['revenue']])
 
 with col2:
-    st.subheader("📉 Profit Margin Trend")
+    st.subheader("Profit Margin Trend")
     st.line_chart(monthly[['margin']])
 
 # ---------------- EXTRA (ADVANCED) ----------------
@@ -82,11 +82,11 @@ st.markdown("---")
 col1, col2 = st.columns(2)
 
 with col1:
-    st.subheader("📊 Revenue Growth %")
+    st.subheader("Revenue Growth %")
     st.line_chart(monthly[['growth']])
 
 with col2:
-    st.subheader("📈 Moving Average (3 months)")
+    st.subheader("Moving Average (3 months)")
     monthly['ma'] = monthly['revenue'].rolling(3).mean()
     st.line_chart(monthly[['ma']])
 
@@ -94,6 +94,6 @@ with col2:
 st.markdown("---")
 st.subheader("🔍 Key Insights")
 
-st.write(f"📈 Best Revenue Month: **{best_month}**")
-st.write(f"🔥 Best Margin Month: **{best_margin_month}**")
-st.write(f"📉 Lowest Revenue Month: **{worst_month}**")
+st.write(f"Best Revenue Month: **{best_month}**")
+st.write(f"Best Margin Month: **{best_margin_month}**")
+st.write(f"Lowest Revenue Month: **{worst_month}**")
