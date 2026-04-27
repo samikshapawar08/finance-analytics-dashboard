@@ -9,7 +9,7 @@ st.set_page_config(page_title="Finance Dashboard", layout="wide")
 db_url = os.environ.get("DATABASE_URL")
 
 if not db_url:
-    db_url = "postgresql://postgres:newpassword123@localhost:5432/finance_db"
+    db_url = "postgresql://postgres:newpassword123@host:5432/finance_db"
 
 engine = create_engine(db_url)
 
