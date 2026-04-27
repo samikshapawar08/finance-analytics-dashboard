@@ -1,13 +1,20 @@
 import streamlit as st
 import pandas as pd
-from sqlalchemy import create_engine
 import os
 from sqlalchemy import create_engine
 
 st.set_page_config(page_title="Finance Dashboard", layout="wide")
 
 
-engine = create_engine(os.environ.get("DATABASE_URL"))
+db_url = os.environ.get("DATABASE_URL")
+
+if not db_url:
+    db_url = "postgresql://postgres:newpassword123@localhost:5432/finance_db"
+
+engine = create_engine(db_url)
+
+# THEN THIS
+df = pd.read_sql("SELECT * FROM finance_data", engine)
 
 df = pd.read_sql("SELECT * FROM finance_data", engine)
 
